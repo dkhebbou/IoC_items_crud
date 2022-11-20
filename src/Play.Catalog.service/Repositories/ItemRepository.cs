@@ -6,16 +6,15 @@ using Play.Catalog.service.Entities;
 
 namespace Play.Catalog.service.Repositories
 {
-    public class ItemRepository
+
+    public class ItemRepository : IItemRepository
     {
         private const string collectionName = "Item";
         private readonly IMongoCollection<Item> dbCollection;
         private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
 
-        public ItemRepository()
+        public ItemRepository(IMongoDatabase database)
         {
-            var mongoClient = new MongoClient("mongodb://localhost:27017");
-            var database = mongoClient.GetDatabase("Catalog");
             dbCollection = database.GetCollection<Item>(collectionName);
         }
 
@@ -37,6 +36,7 @@ namespace Play.Catalog.service.Repositories
             {
                 throw new ArgumentNullException(nameof(item));
             }
+            item.CreatedDate = DateTimeOffset.UtcNow;
             await dbCollection.InsertOneAsync(item);
 
         }
